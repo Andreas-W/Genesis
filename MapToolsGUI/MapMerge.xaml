@@ -1,0 +1,133 @@
+﻿<Window x:Class="MapToolsGUI.MapMergeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MapToolsGUI"
+        xmlns:da="clr-namespace:MapToolsGUI"
+        mc:Ignorable="d"
+        Title="Map Merge" Name="MapMergeWin" Height="768" Width="1024">
+
+    <DockPanel >
+        <Canvas DockPanel.Dock="Top" Height="Auto" VerticalAlignment="Top" Width="Auto" Background="AliceBlue">
+            <Rectangle x:Name="rect_mergedMap" Stroke="Black" Fill="LightGreen" StrokeThickness="1"/>
+            <Image Name="img_map1"></Image>
+            <Rectangle x:Name="rect_border1" Stroke="Orange" StrokeThickness="1"/>
+            <Image Name="img_map2" />
+            <Rectangle x:Name="rect_border2" Stroke="Orange" StrokeThickness="1"/>
+        </Canvas>
+        <Canvas DockPanel.Dock="Top" Height="Auto" VerticalAlignment="Top" Width="Auto">
+            <!-- Overlay Canvas -->
+            <Rectangle x:Name="rect_border_merged" Stroke="Red" StrokeThickness="1"/>
+        </Canvas>
+        <Grid Height="150" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Width="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <Label Content="Map 1" FontWeight="Bold"/>
+                <Button Content="Open..." Click="btn_map1_open_Click" />
+            </StackPanel>
+            <Label Grid.Row="1" Grid.Column="0" Name="lbl_map1" Content="No Map loaded"/>
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                <Label  Content="Width/Height:"/>
+                <TextBox  Name="tb_map1_width" Width="36" IsReadOnly="True"/>
+                <TextBox  Name="tb_map1_height" Width="36" IsReadOnly="True"/>
+                <Label  Content="Border:"/>
+                <TextBox  Name="tb_map1_border" Width="30" IsReadOnly="True"/>
+            </StackPanel>
+            <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Name="panel_map1crop">
+                <Label  Content="Crop:"/>
+                <Label  Content="L:"/>
+                <TextBox  Name="tb_map1_c_l" Width="30" Text="0" TextChanged="tb_map1_offset_CropChanged"/>
+                <Label  Content="T:"/>
+                <TextBox  Name="tb_map1_c_t" Width="30" Text="0" TextChanged="tb_map1_offset_CropChanged"/>
+                <Label  Content="R:"/>
+                <TextBox  Name="tb_map1_c_r" Width="30" Text="0" TextChanged="tb_map1_offset_CropChanged"/>
+                <Label  Content="B:"/>
+                <TextBox  Name="tb_map1_c_b" Width="30" Text="0" TextChanged="tb_map1_offset_CropChanged"/>
+            </StackPanel>
+            <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Name="panel_map1offset">
+                <Label  Content="Offset:"/>
+                <Label  Content="X:"/>
+                <TextBox  Name="tb_map1_offsetX" Width="30" TextChanged="tb_map1_offset_TextChanged" Text="0"/>
+                <Label  Content="Y:"/>
+                <TextBox  Name="tb_map1_offsetY" Width="30" TextChanged="tb_map1_offset_TextChanged" Text="0"/>
+            </StackPanel>
+            <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal" Name="panel_map1buttons">
+                <Button Content="Mirror (H)" Click="btn_map1_mirror_H_Click" />
+                <Button Content="Mirror (V)" Click="btn_map1_mirror_V_Click" />
+                <Button Content="Rotate (+90°)" Click="btn_map1_rotatePlus_Click" />
+                <Button Content="Rotate (-90°)" Click="btn_map1_rotateMinus_Click" />
+            </StackPanel>
+
+            <GridSplitter Grid.Column="0" />
+
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                <Label Content="Map 2" FontWeight="Bold"/>
+                <Button Content="Open..." Click="btn_map2_open_Click" />
+            </StackPanel>
+            <Label Grid.Row="1" Grid.Column="1" Name="lbl_map2" Content="No Map loaded"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" >
+                <Label  Content="Width/Height:"/>
+                <TextBox  Name="tb_map2_width" Width="36" IsReadOnly="True"/>
+                <TextBox  Name="tb_map2_height" Width="36" IsReadOnly="True"/>
+                <Label  Content="Border:"/>
+                <TextBox  Name="tb_map2_border" Width="30" IsReadOnly="True"/>
+            </StackPanel>
+            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Name="panel_map2crop" >
+                <Label  Content="Crop:"/>
+                <Label  Content="L:"/>
+                <TextBox  Name="tb_map2_c_l" Width="30" Text="0" TextChanged="tb_map2_offset_CropChanged"/>
+                <Label  Content="T:"/>
+                <TextBox  Name="tb_map2_c_t" Width="30" Text="0" TextChanged="tb_map2_offset_CropChanged"/>
+                <Label  Content="R:"/>
+                <TextBox  Name="tb_map2_c_r" Width="30" Text="0" TextChanged="tb_map2_offset_CropChanged"/>
+                <Label  Content="B:"/>
+                <TextBox  Name="tb_map2_c_b" Width="30" Text="0" TextChanged="tb_map2_offset_CropChanged"/>
+            </StackPanel>
+            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Name="panel_map2offset">
+                <Label  Content="Offset:"/>
+                <Label  Content="X:"/>
+                <TextBox  Name="tb_map2_offsetX" Width="30" Text="0" TextChanged="tb_map2_offset_TextChanged"/>
+                <Label  Content="Y:"/>
+                <TextBox  Name="tb_map2_offsetY" Width="30" Text="0" TextChanged="tb_map2_offset_TextChanged"/>
+            </StackPanel>
+            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Name="panel_map2buttons">
+                <Button Content="Mirror (H)" Click="btn_map2_mirror_H_Click" />
+                <Button Content="Mirror (V)" Click="btn_map2_mirror_V_Click" />
+                <Button Content="Rotate (+90°)" Click="btn_map2_rotatePlus_Click" />
+                <Button Content="Rotate (-90°)" Click="btn_map2_rotateMinus_Click" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                <Label Content="Merged Map" FontWeight="Bold"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" >
+                <Label  Content="Width/Height:"/>
+                <TextBox  Name="tb_merged_width" Width="36" TextChanged="tb_merged_size_TextChanged"/>
+                <TextBox  Name="tb_merged_height" Width="36" TextChanged="tb_merged_size_TextChanged"/>
+                <Label  Content="Border:"/>
+                <TextBox  Name="tb_merged_border" Width="30" TextChanged="tb_merged_size_TextChanged"/>
+            </StackPanel>
+            <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal" Name="panel_testbuttons">
+                <Button Name="btn_test" Content="test" Click="btn_test_Click" Margin="0,0,0,-0.4"  />
+            </StackPanel>
+            <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal" Name="panel_mergebuttons">
+                <Button Name="btn_mergeMaps" Content="Merge Maps" FontWeight="Black" Click="btn_mergeMaps_Click"  />
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+
+</Window>

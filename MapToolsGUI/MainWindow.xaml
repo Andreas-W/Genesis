@@ -1,0 +1,127 @@
+﻿<Window x:Class="MapToolsGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="464.328" Width="701.651">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Margin="0,3,0.2,-2.6">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Row ="0" Click="LoadMap_Click">Load Map</Button>
+            <Button Grid.Row ="1" Click="SaveMap_Click">Save Map</Button>
+            <Button Grid.Row ="2" Click="ImportHeightmap_Click">Import Heightmap</Button>
+            <Button Grid.Row ="3" Click="ExportHeightmap_Click">Export Heightmap</Button>
+            <Label Content="Border:" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" Width="Auto"/>
+            <TextBox Name="txt_border" Grid.Row="4" HorizontalAlignment="Center" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="40" Margin="69,2,149,3"/>
+            <Button Grid.Row ="4" HorizontalAlignment="Right" Click="UpdateBorder_Click">Update Border</Button>
+            <StackPanel Grid.Row ="5" Orientation="Horizontal">
+                <Button  Click="GenerateTextures_Click">Generate Textures</Button>
+                <Button  Click="RemoveBlend_Click" Height="22" VerticalAlignment="Top">Remove Blend Tiles</Button>
+                <Button  Click="BlendAll_Click">Blend All Tiles</Button>
+            </StackPanel>
+
+            <Button Grid.Row ="6" Click="LoadCliffs_Click"  HorizontalAlignment="Right" Height="27" VerticalAlignment="Top">Load Cliff Map</Button>
+            <Label Content="Threshold:"  Grid.Row="6" VerticalAlignment="Center" HorizontalAlignment="Left" Width="Auto"/>
+            <TextBox Name="txt_cliffthreshold" Grid.Row="6"  TextWrapping="Wrap" Text="" HorizontalAlignment="Center" VerticalAlignment="Center" Width="40" Margin="70,5,148,1"/>
+
+            <GroupBox x:Name="groupBox" Header="Map Commands" Grid.Row="7">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Click="Rotate_Click" Content="Rotate Map" />
+                    <Button Grid.Row="1" Grid.Column="0"  Click="MirrorHorizontal_Click" Content="Mirror Horizontal"/>
+                    <Button Grid.Row="1" Grid.Column="1"  Click="MirrorVertical_Click" Content="Mirror Vertical"/>
+                    <Button Grid.Row="2" Grid.Column="0" Click="CloneMirrorH_Click" Content="Clone and Mirror (H)" />
+                    <Button Grid.Row="2" Grid.Column="1"  Click="CloneMirrorV_Click" Content="Clone and Mirror (V)"/>
+                    <Button Grid.Row="3" Grid.Column="0" Click="CloneRotateH_Click" Content="Clone and Rotate (H)" />
+                    <Button Grid.Row="3" Grid.Column="1"  Click="CloneRotateV_Click" Content="Clone and Rotate (V)"/>
+                    <Button Grid.Row="4" Grid.Column="0" Name="btn_CloneOptions"  Click="CloneOptions_Click" Content="Clone Options..."/>
+                    <Popup Grid.Row="4" Grid.Column="1" Name="pu_cloneOptions" IsOpen="False" PlacementTarget="{Binding ElementName = btn_CloneOptions}" Placement="Right">
+                        <StackPanel Orientation="Vertical" Background="White">
+                            <CheckBox Name ="cb_clone_terrain" IsChecked="True" Checked="cb_cloneOptions_Checked">Terrain</CheckBox>
+                            <CheckBox Name ="cb_clone_blendTiles" IsChecked="True" Checked="cb_cloneOptions_Checked">Blend Tiles</CheckBox>
+                            <CheckBox Name ="cb_clone_heightmap" IsChecked="True" Checked="cb_cloneOptions_Checked">Height</CheckBox>
+                            <CheckBox Name ="cb_clone_objects" IsChecked="True" Checked="cb_cloneOptions_Checked">Objects</CheckBox>
+                            <CheckBox Name ="cb_clone_waypoints" IsChecked="True" Checked="cb_cloneOptions_Checked">Waypoints</CheckBox>
+                            <CheckBox Name ="cb_clone_areas" IsChecked="True" Checked="cb_cloneOptions_Checked">Areas</CheckBox>
+                            <Button Content="close" Click="btn_clone_close_Click"/>
+                        </StackPanel>
+                    </Popup>
+                    <Button Name="btn_resize" Grid.Row="5" Grid.Column="0"  Click="Resize_Click" Content="Resize..."/>
+                    <Popup Grid.Row="5" Grid.Column="1" Name="pu_resizeOptions" IsOpen="False" PlacementTarget="{Binding ElementName = btn_Resize}" Placement="Right">
+                        <StackPanel Orientation="Vertical" Background="White">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Left:"/>
+                                <TextBox Name="txt_resizeL" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Top:"/>
+                                <TextBox Name="txt_resizeT" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Right:"/>
+                                <TextBox Name="txt_resizeR" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Bottom"/>
+                                <TextBox Name="txt_resizeB" HorizontalAlignment="Right" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <Button Content="resize" Click="btn_resize_apply_Click" FontWeight="Bold"/>
+                            <Button Content="close" Click="btn_resize_close_Click"/>
+                        </StackPanel>
+                    </Popup>
+                    <Button Grid.Row="6" Grid.Column="0"  Click="MapMerge_Click" Content="Map merge..." FontWeight="Bold"/>
+                </Grid>
+            </GroupBox>
+
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="1">Map:</Label>
+            <Label Grid.Row="2" Name="lbl_map"></Label>
+            <Image Grid.Row="3" Name="img_map" />
+            <Label Grid.Row="4">Heightmap:</Label>
+            <Label Grid.Row="5" Name="lbl_heightmap"></Label>
+            <Image Grid.Row="6" Name="img_heightmap" />
+            <Label Grid.Row="7">Cliffs:</Label>
+            <Label Grid.Row="8" Name="lbl_cliffmap"></Label>
+            <Image Grid.Row="9" Name="img_cliffmap"/>
+            </Grid>
+    </Grid>
+</Window>
