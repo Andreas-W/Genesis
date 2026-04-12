@@ -56,6 +56,15 @@ namespace Genesis.Settings
         [XmlArray("CliffOverlayTextures")]
         public List<TextureData> CliffOverlayTextures { get; set; }
 
+        [XmlElement("WaterTexture")]
+        public TextureData WaterTextureData { get; set; }
+
+        [XmlIgnore]
+        public Texture WaterTexture { get { return WaterTextureData.Texture; } }
+
+        [XmlArray("WaterOverlayTextures")]
+        public List<TextureData> WaterOverlayTextures { get; set; }
+
         [XmlArray("Trees")]
         [XmlArrayItem("Tree")]
         public List<string> Trees { get; set; }
@@ -72,10 +81,15 @@ namespace Genesis.Settings
         {
             get
             {
-                return BaseTexture.BlockCount +
+                int count = BaseTexture.BlockCount +
                        OverlayTextures.Sum(t => t.Texture.BlockCount) +
                        CliffTexture.BlockCount +
                        CliffOverlayTextures.Sum(t => t.Texture.BlockCount);
+
+                if (WaterTexture != null)
+                    count += WaterTexture.BlockCount + WaterOverlayTextures.Sum(t => t.Texture.BlockCount);
+
+                return count;
             }
         }
 
@@ -83,6 +97,7 @@ namespace Genesis.Settings
         {
             OverlayTextures = new List<TextureData>();
             CliffOverlayTextures = new List<TextureData>();
+            WaterOverlayTextures = new List<TextureData>();
             Trees = new List<string>();
             Rocks = new List<string>();
         }
@@ -96,6 +111,13 @@ namespace Genesis.Settings
             tileData.AddTexture(CliffTexture);
             foreach (var texture in CliffOverlayTextures)
                 tileData.AddTexture(texture.Texture);
+
+            if (WaterTexture != null)
+            {
+                tileData.AddTexture(WaterTexture);
+                foreach (var texture in WaterOverlayTextures)
+                    tileData.AddTexture(texture.Texture);
+            }
         }
     }
 }

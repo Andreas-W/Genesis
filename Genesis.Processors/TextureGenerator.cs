@@ -70,8 +70,11 @@ namespace Genesis.Processors
             {
                 for (int j = 0; j < map.Tiles.Height; j++)
                 {
+                    
                     if ((info.Tiles[i, j] & TileInfo.Cliff) == TileInfo.Cliff)
                         SetTexture(i, j, noise, info.Settings.Scenery.CliffTexture, info.Settings.Scenery.CliffOverlayTextures);
+                    else if (map.HeightMap[i, j] < this.info.Settings.WaterLevel && info.Settings.Scenery.WaterTexture != null)
+                        SetTexture(i, j, noise, info.Settings.Scenery.WaterTexture, info.Settings.Scenery.WaterOverlayTextures);
                     else
                         SetTexture(i, j, noise, info.Settings.Scenery.BaseTexture, info.Settings.Scenery.OverlayTextures);
                 }
@@ -108,7 +111,8 @@ namespace Genesis.Processors
         {
             if (textureData[x, y] == null ||
                 textureData[x, y] == info.Settings.Scenery.BaseTexture && info.Settings.Scenery.OverlayTextures.Any(t => t.Texture == texture) ||
-                textureData[x, y] == info.Settings.Scenery.CliffTexture && info.Settings.Scenery.CliffOverlayTextures.Any(t => t.Texture == texture))
+                textureData[x, y] == info.Settings.Scenery.CliffTexture && info.Settings.Scenery.CliffOverlayTextures.Any(t => t.Texture == texture) ||
+                textureData[x, y] == info.Settings.Scenery.WaterTexture && info.Settings.Scenery.WaterOverlayTextures.Any(t => t.Texture == texture))
             {
                 textureData[x, y] = texture;
             }

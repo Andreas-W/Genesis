@@ -142,20 +142,45 @@ namespace MapTools
 
 
             //Desert Canyon
+            //defaultScenery = new Scenery();
+            //defaultScenery.BaseTextureData = new TextureData() { Name = "SandMediumType7", Size = 256 };
+            //defaultScenery.OverlayTextures = new List<TextureData>();
+            //defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandLargeType3", Size = 384, Granularity = 0.05f });
+            //defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType10", Size = 256, Granularity = 0.05f });
+            //defaultScenery.OverlayTextures.Add(new TextureData() { Name = "DirtMediumType9", Size = 256, Granularity = 0.1f });
+            ////defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType8", Size = 256, Granularity = 0.1f });
+            //defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType7Rocky", Size = 256, Granularity = 0.07f });
+            //defaultScenery.CliffTextureData = new TextureData() { Name = "CliffMediumType6b", Size = 256 };
+            //defaultScenery.CliffOverlayTextures = new List<TextureData>();
+            //defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffLargeType13", Size = 384, Granularity = 0.07f });
+            //defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffMediumType5b", Size = 256, Granularity = 0.05f });
+
+
+            //TODO: Tropical Island
             defaultScenery = new Scenery();
-            defaultScenery.BaseTextureData = new TextureData() { Name = "SandMediumType7", Size = 256 };
+            defaultScenery.BaseTextureData = new TextureData() { Name = "SandMediumType13", Size = 256 };
             defaultScenery.OverlayTextures = new List<TextureData>();
-            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandLargeType3", Size = 384, Granularity = 0.05f });
-            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType10", Size = 256, Granularity = 0.05f });
-            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "DirtMediumType9", Size = 256, Granularity = 0.1f });
-            //defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType8", Size = 256, Granularity = 0.1f });
-            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType7Rocky", Size = 256, Granularity = 0.07f });
-            defaultScenery.CliffTextureData = new TextureData() { Name = "CliffMediumType6b", Size = 256 };
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType13b", Size = 256, Granularity = 0.1f });
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType13c", Size = 256, Granularity = 0.05f });
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType13d", Size = 256, Granularity = 0.05f });
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType13grassy4", Size = 256, Granularity = 0.05f });
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandLargeType3Light", Size = 384, Granularity = 0.05f });
+            defaultScenery.OverlayTextures.Add(new TextureData() { Name = "SandMediumType6Light", Size = 256, Granularity = 0.05f });
+            
+            
+            defaultScenery.CliffTextureData = new TextureData() { Name = "CliffLargeType1", Size = 384 };
+
             defaultScenery.CliffOverlayTextures = new List<TextureData>();
-            defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffLargeType13", Size = 384, Granularity = 0.07f });
-            defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffMediumType5b", Size = 256, Granularity = 0.05f });
+            defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffMediumType1", Size = 256, Granularity = 0.07f });
+            defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffMediumType16", Size = 256, Granularity = 0.05f });
+            defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "CliffMediumType15", Size = 256, Granularity = 0.05f });
+            //defaultScenery.CliffOverlayTextures.Add(new TextureData() { Name = "RocksType3", Size = 128, Granularity = 0.025f });
 
 
+            defaultScenery.WaterTextureData = new TextureData() { Name = "SandMediumType9blue", Size = 256 };
+            defaultScenery.WaterOverlayTextures = new List<TextureData>();
+            defaultScenery.WaterOverlayTextures.Add(new TextureData() { Name = "SandMediumType9blue2", Size = 256, Granularity = 0.07f });
+            defaultScenery.WaterOverlayTextures.Add(new TextureData() { Name = "SandMediumType9blue3", Size = 256, Granularity = 0.04f });
 
 
 
@@ -328,7 +353,7 @@ namespace MapTools
         //    }
         //}
 
-        public static void textureGenerator()
+        public static void textureGenerator(byte waterLevel = 0)
         {
             int width = map.HeightMap.Width;
             int height = map.HeightMap.Height;
@@ -341,7 +366,7 @@ namespace MapTools
                 info = new MapInfo(0, width, height, settings, 2, CancellationToken.None);
             }
 
-
+            info.Settings.WaterLevel = waterLevel;
 
             TextureGenerator texGen = new TextureGenerator();
             texGen.Process(map, info);
@@ -402,5 +427,18 @@ namespace MapTools
             }
 
         }
+
+        //public static void setWaterLevel(byte waterLevel)
+        //{
+        //    if (info == null)
+        //    {
+        //        int width = map.HeightMap.Width;
+        //        int height = map.HeightMap.Height;
+        //        Genesis.Settings.MapSettings settings = new Genesis.Settings.MapSettings(defaultLayout, defaultScenery, Frequency.Low, Frequency.Low, CkMp.Data.Enumerations.TimeOfDay.Afternoon);
+        //        info = new MapInfo(0, width, height, settings, 2, CancellationToken.None);
+        //    }
+
+
+        //}
     }
 }

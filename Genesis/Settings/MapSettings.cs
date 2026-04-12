@@ -31,6 +31,8 @@ namespace Genesis.Settings
         public Frequency NumberOfTrees { get; set; }
         public TimeOfDay TimeOfDay { get; set; }
 
+        public byte WaterLevel { get; set; }
+
         public MapSettings(MapLayout layout, Scenery scenery, Frequency numberOfCliffs, Frequency numberOfTrees, TimeOfDay timeOfDay)
         {
             Layout = layout;

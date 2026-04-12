@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 
 using MapTools;
 
+
 namespace MapToolsGUI
 {
     /// <summary>
@@ -64,7 +65,15 @@ namespace MapToolsGUI
 
         private void GenerateTextures_Click(object sender, RoutedEventArgs e)
         {
-            MapTools.MapTools.textureGenerator();
+            byte t;
+            if (Byte.TryParse(txt_waterLevel.Text, out t))
+            {
+                MapTools.MapTools.textureGenerator(t);
+            }
+            else
+            {
+                MapTools.MapTools.textureGenerator();
+            }
         }
 
         private void LoadCliffs_Click(object sender, RoutedEventArgs e)
@@ -196,5 +205,15 @@ namespace MapToolsGUI
         {
             this.pu_resizeOptions.IsOpen = false;
         }
+
+        //private void txt_waterLevel_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    byte waterLevel;
+
+        //    if (Byte.TryParse(txt_waterLevel.Text, out waterLevel))
+        //    {
+        //        MapTools.MapTools.info.Settings.WaterLevel = waterLevel;
+        //    }
+        //}
     }
 }

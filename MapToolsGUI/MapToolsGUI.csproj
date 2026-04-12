@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MapToolsGUI</RootNamespace>
     <AssemblyName>MapToolsGUI</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -106,6 +107,10 @@
     <ProjectReference Include="..\CkMp.Data\CkMp.Data.csproj">
       <Project>{23986f0d-441f-46d9-a401-da3085b3d743}</Project>
       <Name>CkMp.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Genesis\Genesis.csproj">
+      <Project>{270225C8-F914-4A63-9969-F79B0EC420E9}</Project>
+      <Name>Genesis</Name>
     </ProjectReference>
     <ProjectReference Include="..\MapTools\MapTools.csproj">
       <Project>{b7432442-4ad5-4e38-bcf7-a689a9a70f43}</Project>
