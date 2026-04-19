@@ -18,6 +18,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
             <Button Grid.Row ="0" Click="LoadMap_Click">Load Map</Button>
@@ -102,6 +103,13 @@
                     <Button Grid.Row="6" Grid.Column="0"  Click="MapMerge_Click" Content="Map merge..." FontWeight="Bold" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
                 </Grid>
             </GroupBox>
+            <GroupBox Header="CCUN'T" Grid.Row="9">
+                <StackPanel Orientation="Horizontal">
+                    <Button Click="btn_replace_all_Click">Replace All</Button>
+
+                </StackPanel>
+            </GroupBox>
+
 
         </Grid>
 

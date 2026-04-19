@@ -206,6 +206,11 @@ namespace MapToolsGUI
             this.pu_resizeOptions.IsOpen = false;
         }
 
+        private void btn_replace_all_Click(object sender, RoutedEventArgs e)
+        {
+            MapTools.Commands.Replace.replace(MapTools.MapTools.map, true, true, false);
+        }
+
         //private void txt_waterLevel_TextChanged(object sender, TextChangedEventArgs e)
         //{
         //    byte waterLevel;
