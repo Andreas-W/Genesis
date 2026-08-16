@@ -6,15 +6,23 @@ using System.Threading.Tasks;
 
 using CkMp.Data;
 using CkMp.Data.Map;
+using MapTools.Utils;
 
 namespace MapTools.Commands
 {
     public class Mirror
     {
-        public static void mirror(Map map, bool vertical)
+        /// <summary>
+        /// Mirrors the whole map along one axis.
+        /// </summary>
+        /// <param name="relayTextures">
+        /// Off by default, which keeps every tile's texture index as it is. See
+        /// <see cref="Rotate.rotateMap"/> for what turning it on does.
+        /// </param>
+        public static void mirror(Map map, bool vertical, bool relayTextures = false)
         {
             mirrorHeightMap(map, vertical);
-            mirrorTiles(map, vertical);
+            mirrorTiles(map, vertical, relayTextures);
             mirrorObjects(map, vertical);
             mirrorAreas(map, vertical);
         }
@@ -42,16 +50,26 @@ namespace MapTools.Commands
             map.HeightMap = hm2;
         }
 
-        private static void mirrorTiles(Map map, bool vertical)
+        private static void mirrorTiles(Map map, bool vertical, bool relayTextures)
         {
             TileData td = map.Tiles;
             TileData td2 = new TileData(td.Width, td.Height);
 
+            foreach (var tex in td.Textures)
+            {
+                td2.AddTexture(tex);
+            }
+
+            if (relayTextures)
+            {
+                mirrorTilesRelayed(td, td2, vertical);
+                map.Tiles = td2;
+                return;
+            }
+
             //td2.Textures = td.Textures;
             //td2.NumberOfBaseTiles = td.NumberOfBaseTiles;
             td2.NumberOfBlendTiles = td.NumberOfBlendTiles;
-
-            //Rotate left: x -> y; y -> -x
 
             for (int i = 0; i < td.Width; i++)
             {
@@ -69,46 +87,57 @@ namespace MapTools.Commands
             }
             map.Tiles = td2;
 
-            foreach (var tex in td.Textures)
-            {
-                td2.AddTexture(tex);
-            }
-
-            //Rotate BlendTiles
+            //Mirror BlendTiles
             foreach (var bt in td.BlendTiles)
             {
-                BlendType type = bt.BlendType;
-                if (vertical) //flip top/bottom
+                td2.BlendTiles.Add(new BlendTile()
                 {
-                    if (bt.BlendType == BlendType.Top) type = BlendType.Bottom;
-                    else if (bt.BlendType == BlendType.Bottom) type = BlendType.Top;                 
-                    else if (bt.BlendType == BlendType.TopLeftSmall) type = BlendType.BottomLeftSmall;
-                    else if (bt.BlendType == BlendType.TopLeftLarge) type = BlendType.BottomLeftLarge;
-                    else if (bt.BlendType == BlendType.TopRightSmall) type = BlendType.BottomRightSmall;
-                    else if (bt.BlendType == BlendType.TopRightLarge) type = BlendType.BottomRightLarge;
-                    else if (bt.BlendType == BlendType.BottomLeftSmall) type = BlendType.TopLeftSmall;
-                    else if (bt.BlendType == BlendType.BottomLeftLarge) type = BlendType.TopLeftLarge;
-                    else if (bt.BlendType == BlendType.BottomRightSmall) type = BlendType.TopRightSmall;
-                    else if (bt.BlendType == BlendType.BottomRightLarge) type = BlendType.TopRightLarge;
-                }
-                else //flip left/right
-                {
-                    if (bt.BlendType == BlendType.Left) type = BlendType.Right;
-                    if (bt.BlendType == BlendType.Right) type = BlendType.Left;
-                    else if (bt.BlendType == BlendType.TopLeftSmall) type = BlendType.TopRightSmall;
-                    else if (bt.BlendType == BlendType.TopLeftLarge) type = BlendType.TopRightLarge;
-                    else if (bt.BlendType == BlendType.TopRightSmall) type = BlendType.TopLeftSmall;
-                    else if (bt.BlendType == BlendType.TopRightLarge) type = BlendType.TopLeftLarge;
-                    else if (bt.BlendType == BlendType.BottomLeftSmall) type = BlendType.BottomRightSmall;
-                    else if (bt.BlendType == BlendType.BottomLeftLarge) type = BlendType.BottomRightLarge;
-                    else if (bt.BlendType == BlendType.BottomRightSmall) type = BlendType.BottomLeftSmall;
-                    else if (bt.BlendType == BlendType.BottomRightLarge) type = BlendType.BottomLeftLarge;
-                }
-               
-                //td2.GetBlendTileIndex(bt.TileIndex, type);
-                td2.BlendTiles.Add(new BlendTile() { TileIndex = bt.TileIndex, BlendType = type });
+                    TileIndex = bt.TileIndex,
+                    BlendType = TileUtils.getBlendTypeMirrored(bt.BlendType, vertical)
+                });
             }
-            //td2.BlendTiles = td.BlendTiles;
+
+            // The list was filled directly, so the deduplication lookup has to catch up before
+            // anything else calls GetBlendTileIndex on this TileData.
+            td2.RebuildBlendTileIndex();
+        }
+
+        /// <summary>
+        /// Mirrors the tiles and recomputes every texture index for its new position, so the
+        /// texture pattern stays aligned with the grid.
+        /// </summary>
+        private static void mirrorTilesRelayed(TileData td, TileData td2, bool vertical)
+        {
+            // NumberOfBlendTiles is always one more than the number of entries in the list.
+            td2.NumberOfBlendTiles = 1;
+
+            Func<BlendType, BlendType> mirror = t => TileUtils.getBlendTypeMirrored(t, vertical);
+
+            for (int i = 0; i < td.Width; i++)
+            {
+                for (int j = 0; j < td.Height; j++)
+                {
+                    int x = vertical ? i : td.Width - 1 - i;
+                    int y = vertical ? td.Height - 1 - j : j;
+
+                    var source = td[i, j];
+                    var tile = new Tile()
+                    {
+                        BaseTexture = td.GetTexture(i, j).GetTileIndex(x, y),
+                        Impassable = source.Impassable
+                    };
+
+                    tile.BlendTexture1 = TileUtils.remapBlendTile(td, td2, source.BlendTexture1, i, j, x, y, mirror);
+                    if (tile.BlendTexture1 > 0)
+                    {
+                        tile.BlendTexture2 = TileUtils.remapBlendTile(td, td2, source.BlendTexture2, i, j, x, y, mirror);
+                        if (tile.BlendTexture2 > 0)
+                            tile.BlendTexture3 = TileUtils.remapBlendTile(td, td2, source.BlendTexture3, i, j, x, y, mirror);
+                    }
+
+                    td2[x, y] = tile;
+                }
+            }
         }
 
         private static void mirrorObjects(Map map, bool vertical)

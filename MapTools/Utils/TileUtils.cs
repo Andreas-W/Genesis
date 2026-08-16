@@ -61,6 +61,34 @@ namespace MapTools.Utils
             return type;
         }
 
+        /// <summary>
+        /// Moves a blend tile reference from (sourceX, sourceY) to (x, y).
+        ///
+        /// Both BlendTile.TileIndex and Tile.BaseTexture encode the position inside the tiled
+        /// texture image, so a blend tile cannot simply be carried over: its tile index has to be
+        /// recomputed for the target position, and its blend type run through
+        /// <paramref name="transform"/> for the mirror or rotation being applied.
+        ///
+        /// Returns 0 (no blend) for an empty or out of range reference.
+        /// </summary>
+        public static short remapBlendTile(TileData source, TileData target, short blendIndex,
+            int sourceX, int sourceY, int x, int y, Func<BlendType, BlendType> transform)
+        {
+            if (blendIndex <= 0 || blendIndex > source.BlendTiles.Count)
+                return 0;
+
+            BlendTile blendTile = source.BlendTiles[blendIndex - 1];
+
+            // No texture owns this index at the source position. That happens on maps whose tiles
+            // were moved without updating their indices, which is what Rotate and Mirror do by
+            // default. Keep the index unchanged rather than dropping the blend tile: the map is
+            // already misaligned, losing the blend on top of that would be worse.
+            var texture = target.Textures.Find(t => t.GetTileIndex(sourceX, sourceY) == blendTile.TileIndex);
+            short tileIndex = texture == null ? blendTile.TileIndex : texture.GetTileIndex(x, y);
+
+            return target.GetBlendTileIndex(tileIndex, transform(blendTile.BlendType));
+        }
+
         public static Grid<Texture> getTextureData(Map map)
         {
             var width = map.HeightMap.Width;

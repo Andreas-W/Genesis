@@ -25,6 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CkMp.Data.Compression;
 using CkMp.Data.Lighting;
 using CkMp.Data.Map;
 using CkMp.Data.Objects;
@@ -39,6 +40,12 @@ namespace CkMp.Data
 		public IList<String> Strings { get; private set; }
 		public Map.Map Map { get; set; }
 
+		/// <summary>
+		/// Container the map is written in. Defaults to <see cref="MapCompressionType.None"/>;
+		/// set to <see cref="MapCompressionType.RefPack"/> to produce a compressed .map file.
+		/// </summary>
+		public MapCompressionType Compression { get; set; }
+
 		public Writer()
 		{
 			InitializeVariables();
@@ -51,14 +58,44 @@ namespace CkMp.Data
 
 		public void WriteFile(string fileName)
 		{
+			WriteFile(fileName, Compression);
+		}
+
+		public void WriteFile(string fileName, MapCompressionType compression)
+		{
 			string directory = Path.GetDirectoryName(fileName);
-			if (!Directory.Exists(directory))
+			if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory))
 				Directory.CreateDirectory(directory);
 
-			WriteStream(File.Open(fileName, FileMode.Create));
+			WriteStream(File.Open(fileName, FileMode.Create), compression);
 		}
 
 		public void WriteStream(Stream stream)
+		{
+			WriteStream(stream, Compression);
+		}
+
+		public void WriteStream(Stream stream, MapCompressionType compression)
+		{
+			if (compression == MapCompressionType.None)
+			{
+				WritePlainStream(stream);
+				return;
+			}
+
+			// The container stores the uncompressed size up front, so the map has to be
+			// serialized completely before anything can be written to the target stream.
+			var buffer = new MemoryStream();
+			WritePlainStream(buffer);
+			byte[] plain = buffer.ToArray(); // still valid after WritePlainStream closed the stream
+
+			byte[] compressed = MapCompression.Compress(plain, compression);
+
+			using (stream)
+				stream.Write(compressed, 0, compressed.Length);
+		}
+
+		private void WritePlainStream(Stream stream)
 		{
 			checked
 			{
@@ -204,7 +241,13 @@ namespace CkMp.Data
 					}
 				}
 				if (Map.Tiles.Width % 8 != 0)
+				{
+					// The last byte of the row is only partly filled. Shifting in from the top has
+					// left those bits at the high end, but the reader takes tile j from bit j % 8,
+					// so they have to be right aligned first.
+					impassability = (byte)(impassability >> (8 - Map.Tiles.Width % 8));
 					writer.Write(impassability);
+				}
 			}
 		}
 

@@ -21,6 +21,29 @@ namespace MapTools.Utils
             "waypointPathLabel3",
             "objectName"
         });
+        /// <summary>
+        /// Name World Builder gives the water area it creates for a new map.
+        /// </summary>
+        public static string DEFAULT_WATER_AREA = "Default Water";
+
+        /// <summary>
+        /// True for the default water area. Spelling of the name differs between the tools that
+        /// write map files ("Default Water", "DefaultWater", "Default_Water"), so spaces,
+        /// underscores and casing are ignored.
+        /// </summary>
+        public static bool isDefaultWater(Area area)
+        {
+            if (area == null || area.Name == null)
+                return false;
+
+            return normalizeAreaName(area.Name) == normalizeAreaName(DEFAULT_WATER_AREA);
+        }
+
+        private static string normalizeAreaName(string name)
+        {
+            return name.Replace(" ", String.Empty).Replace("_", String.Empty).ToLowerInvariant();
+        }
+
         public static void renameAreas(List<Area> oldAreas, List<Area> newAreas)
         {
             foreach(var area in newAreas.ToList())
@@ -56,6 +79,16 @@ namespace MapTools.Utils
 
         public static ScriptObject cloneObject(ScriptObject src)
         {
+            return cloneObject(src, COPY_SUFFIX);
+        }
+
+        /// <summary>
+        /// Clones an object, appending <paramref name="suffix"/> to the properties that name it.
+        /// Pass a distinct suffix per copy when creating more than one clone of the same object,
+        /// otherwise the copies end up sharing names.
+        /// </summary>
+        public static ScriptObject cloneObject(ScriptObject src, string suffix)
+        {
 
             ScriptObject other = new ScriptObject();
             other.X = src.X;
@@ -71,7 +104,7 @@ namespace MapTools.Utils
                 var val = p.Value;
                 if ((p.Type == PropertyType.OneByteString || p.Type == PropertyType.TwoByteString) && PROPERTY_RENAME_KEYS.Contains(k))
                 {
-                    val = (string)p.Value + COPY_SUFFIX;
+                    val = (string)p.Value + suffix;
                 }
                 other.SetProperty(k, p.Type, val);
             }

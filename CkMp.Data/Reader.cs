@@ -41,11 +41,17 @@ namespace CkMp.Data
         public String[] Strings { get; protected set; }
         public Map.Map Map { get; protected set; }
 
+        /// <summary>
+        /// Compression the last read file used. <see cref="MapCompressionType.None"/> for plain maps.
+        /// </summary>
+        public MapCompressionType Compression { get; private set; }
+
         private void InitializeVariables()
         {
             indention = 0;
             Map = new Map.Map();
-        }   
+            Compression = MapCompressionType.None;
+        }
 
         public void ReadFile(String fileName)
         {
@@ -56,21 +62,28 @@ namespace CkMp.Data
         {
             InitializeVariables();
 
-            //if (Refpack.isCompressed(stream))
-            //{
-            //    reader = new BinaryReader(stream);
-            //}
-            //else {
-            reader = new BinaryReader(stream);
-            //}
+            // Map files may be wrapped in a compression container ("EAR\0" RefPack and friends).
+            // Decompress transparently and remember the format so it can be preserved when saving.
+            MapCompressionType compression;
+            Stream data = MapCompression.Decompress(stream, out compression);
+            Compression = compression;
+            try
+            {
+                reader = new BinaryReader(data);
 
-            ReadCkMp();
-            ReadStrings();
+                ReadCkMp();
+                ReadStrings();
 
-            while (reader.BaseStream.Position < reader.BaseStream.Length)
-                ReadSection();
+                while (reader.BaseStream.Position < reader.BaseStream.Length)
+                    ReadSection();
 
-            reader.Close();
+                reader.Close();
+            }
+            finally
+            {
+                if (!ReferenceEquals(data, stream))
+                    stream.Dispose();
+            }
         }
 
         private void ReadCkMp()

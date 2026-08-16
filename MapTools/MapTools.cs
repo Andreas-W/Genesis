@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using CkMp.Data;
+using CkMp.Data.Compression;
 using CkMp.Data.Map;
 
 using Genesis.Processors;
@@ -33,6 +34,11 @@ namespace MapTools
         public static MapInfo info = null;
 
         public static string mapName = "";
+
+        /// <summary>
+        /// Compression of the currently loaded map, also used as the default when saving.
+        /// </summary>
+        public static MapCompressionType compression = MapCompressionType.None;
 
         [STAThread]
         static void Main(string[] args)
@@ -270,6 +276,16 @@ namespace MapTools
 
         public static void saveMap()
         {
+            saveMap(compression);
+        }
+
+        public static void saveMap(bool compress)
+        {
+            saveMap(compress ? MapCompressionType.RefPack : MapCompressionType.None);
+        }
+
+        public static void saveMap(MapCompressionType compressionType)
+        {
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.Filter = "map files (*.map)|*.map|All files (*.*)|*.*";
             //saveFileDialog1.FilterIndex = 1;
@@ -279,8 +295,8 @@ namespace MapTools
             {
                 var writer = new Writer();
                 writer.Map = map;
-                writer.WriteFile(saveFileDialog1.FileName);
-            } 
+                writer.WriteFile(saveFileDialog1.FileName, compressionType);
+            }
         }
 
 
@@ -296,6 +312,8 @@ namespace MapTools
                 var reader = new Reader();
                 reader.ReadFile(filename);
                 MapTools.map = reader.Map;
+                // Remember how the file was stored so it can be saved the same way again.
+                MapTools.compression = reader.Compression;
                 mapName = Path.GetFileName(filename);
                 return mapName;
             }

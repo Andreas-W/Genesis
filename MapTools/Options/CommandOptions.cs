@@ -14,6 +14,12 @@ namespace MapTools.Options
         public bool CloneObjects = true;
         public bool CloneWaypoints = true;
         public bool CloneAreas = true;
+
+        /// <summary>
+        /// Leaves the "Default Water" area alone: it is neither cloned nor removed.
+        /// It usually covers the whole map already, so copying it just stacks duplicates.
+        /// </summary>
+        public bool SkipDefaultWater = true;
         //TODO
     }
 

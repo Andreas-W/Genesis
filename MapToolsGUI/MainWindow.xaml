@@ -22,7 +22,11 @@
             </Grid.RowDefinitions>
 
             <Button Grid.Row ="0" Click="LoadMap_Click">Load Map</Button>
-            <Button Grid.Row ="1" Click="SaveMap_Click">Save Map</Button>
+            <DockPanel Grid.Row ="1">
+                <CheckBox Name="cb_compress" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="6,0,4,0"
+                          ToolTip="Write the map as a RefPack compressed file, like the game does.">Compress (RefPack)</CheckBox>
+                <Button Click="SaveMap_Click">Save Map</Button>
+            </DockPanel>
             <Button Grid.Row ="2" Click="ImportHeightmap_Click">Import Heightmap</Button>
             <Button Grid.Row ="3" Click="ExportHeightmap_Click">Export Heightmap</Button>
             <Label Content="Border:" HorizontalAlignment="Left" Grid.Row="4" VerticalAlignment="Center" Width="Auto"/>
@@ -66,6 +70,7 @@
                     <Button Grid.Row="3" Grid.Column="0" Click="CloneRotateH_Click" Content="Clone and Rotate (H)" Grid.ColumnSpan="2" Margin="0,0,0,20" Grid.RowSpan="2" />
                     <Button Grid.Row="3" Grid.Column="1"  Click="CloneRotateV_Click" Content="Clone and Rotate (V)" Grid.ColumnSpan="2" Margin="146,0,0,20" Grid.RowSpan="2"/>
                     <Button Grid.Row="4" Grid.Column="0" Name="btn_CloneOptions"  Click="CloneOptions_Click" Content="Clone Options..." Grid.ColumnSpan="2" Margin="0,0,0,20" Grid.RowSpan="2"/>
+                    <Button Grid.Row="4" Grid.Column="1" Click="CloneQuarter_Click" Content="Clone Quarter (BottomLeft)" Grid.ColumnSpan="2" Margin="146,0,0,20" Grid.RowSpan="2"/>
                     <Popup Grid.Row="4" Grid.Column="1" Name="pu_cloneOptions" IsOpen="False" PlacementTarget="{Binding ElementName = btn_CloneOptions}" Placement="Right" Grid.ColumnSpan="2" Margin="146,0,0,20" Grid.RowSpan="2">
                         <StackPanel Orientation="Vertical" Background="White">
                             <CheckBox Name ="cb_clone_terrain" IsChecked="True" Checked="cb_cloneOptions_Checked">Terrain</CheckBox>
@@ -74,6 +79,8 @@
                             <CheckBox Name ="cb_clone_objects" IsChecked="True" Checked="cb_cloneOptions_Checked">Objects</CheckBox>
                             <CheckBox Name ="cb_clone_waypoints" IsChecked="True" Checked="cb_cloneOptions_Checked">Waypoints</CheckBox>
                             <CheckBox Name ="cb_clone_areas" IsChecked="True" Checked="cb_cloneOptions_Checked">Areas</CheckBox>
+                            <CheckBox Name ="cb_clone_skipDefaultWater" IsChecked="True" Checked="cb_cloneOptions_Checked"
+                                      ToolTip="Leave the &quot;Default Water&quot; area untouched instead of cloning it.">Skip Default Water</CheckBox>
                             <Button Content="close" Click="btn_clone_close_Click"/>
                         </StackPanel>
                     </Popup>

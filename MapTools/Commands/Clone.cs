@@ -54,17 +54,17 @@ namespace MapTools.Commands
                 {
                     if (vertical) //flip y
                     {
-                        if (j > hm.Height / 2)
+                        if (j >= hm.Height / 2)
                         {
                             hm2[i,j] = hm[i, hm.Height - 1 - j];
                         }else
                         {
-                            hm2[i, j] = hm[i, j]; 
+                            hm2[i, j] = hm[i, j];
                         }
                     }
                     else //flip x
                     {
-                        if (i > hm.Width / 2)
+                        if (i >= hm.Width / 2)
                         {
                             hm2[i, j] = hm[hm.Width - 1 - i, j];
                         }
@@ -109,7 +109,7 @@ namespace MapTools.Commands
                     int x = i, y = j;
                     if (vertical) //flip y
                     {
-                        if (j > td.Height / 2)
+                        if (j >= td.Height / 2)
                         {
                             y = td.Height - 1 - j;
                             flip = true;
@@ -117,7 +117,7 @@ namespace MapTools.Commands
                     }
                     else //flip x
                     {
-                        if (i > td.Width / 2)
+                        if (i >= td.Width / 2)
                         {
                             x = td.Width - 1 - i;
                             flip = true;
@@ -126,49 +126,26 @@ namespace MapTools.Commands
 
                     if (flip)
                     {
-                        Tile tile = null;
-                        if (!options.CloneBlendTiles)
+                        var source = td[x, y];
+                        var tile = new Tile()
                         {
-                            tile = new Tile()
-                            {
-                                BaseTexture = td.GetTexture(x, y).GetTileIndex(i, j),
-                                Impassable = td[x, y].Impassable
-                            };
-                        }
-                        else
-                        {
-                            tile = new Tile()
-                            {
-                                BaseTexture = td.GetTexture(x, y).GetTileIndex(i, j),
-                                //BaseTexture = td[x, y].BaseTexture,
-                                BlendTexture1 = td[x, y].BlendTexture1,
-                                BlendTexture2 = td[x, y].BlendTexture2,
-                                BlendTexture3 = td[x, y].BlendTexture3,
-                                Impassable = td[x, y].Impassable
-                            };
+                            BaseTexture = td.GetTexture(x, y).GetTileIndex(i, j),
+                            Impassable = source.Impassable
+                        };
 
+                        if (options.CloneBlendTiles)
+                        {
+                            Func<BlendType, BlendType> mirror = t => TileUtils.getBlendTypeMirrored(t, vertical);
+
+                            tile.BlendTexture1 = TileUtils.remapBlendTile(td, td, source.BlendTexture1, x, y, i, j, mirror);
                             if (tile.BlendTexture1 > 0)
                             {
-                                BlendTile bt = td.BlendTiles[tile.BlendTexture1 - 1];
-                                var tex = td.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                                var tileIndex = tex.GetTileIndex(i, j);
-                                tile.BlendTexture1 = td.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(bt.BlendType, vertical));
+                                tile.BlendTexture2 = TileUtils.remapBlendTile(td, td, source.BlendTexture2, x, y, i, j, mirror);
                                 if (tile.BlendTexture2 > 0)
-                                {
-                                    bt = td.BlendTiles[tile.BlendTexture2 - 1];
-                                    tex = td.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                                    tileIndex = tex.GetTileIndex(i, j);
-                                    tile.BlendTexture2 = td.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(bt.BlendType, vertical));
-                                    if (tile.BlendTexture3 > 0)
-                                    {
-                                        bt = td.BlendTiles[tile.BlendTexture3 - 1];
-                                        tex = td.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                                        tileIndex = tex.GetTileIndex(i, j);
-                                        tile.BlendTexture3 = td.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(bt.BlendType, vertical));
-                                    }
-                                }
+                                    tile.BlendTexture3 = TileUtils.remapBlendTile(td, td, source.BlendTexture3, x, y, i, j, mirror);
                             }
                         }
+
                         td[i, j] = tile;
                     }
                 }
@@ -248,9 +225,9 @@ namespace MapTools.Commands
             List<Area> newAreas = new List<Area>();
             foreach (var a in map.Areas.ToList())
             {
-                if (a.Name.Equals("DefaultWater"))
+                if (options.SkipDefaultWater && ObjectUtils.isDefaultWater(a))
                     continue;
-                if ((vertical && !a.Points.Exists(p => (float)p[1] < centerY)) || 
+                if ((vertical && !a.Points.Exists(p => (float)p[1] < centerY)) ||
                     (!vertical && !a.Points.Exists(p => (float)p[0] < centerX)))
                 { //If no point is within half, remove area
                     map.Areas.Remove(a);
@@ -298,7 +275,7 @@ namespace MapTools.Commands
             {
                 for (int j = 0; j < hm.Height; j++)
                 {
-                    if ((vertical && j > hm.Height / 2) || (!vertical && i > hm.Width / 2))
+                    if ((vertical && j >= hm.Height / 2) || (!vertical && i >= hm.Width / 2))
                     { //flip x and y
                         hm2[i, j] = hm[hm.Width - 1 - i, hm.Height - 1 - j];
                     }else
@@ -315,19 +292,13 @@ namespace MapTools.Commands
             TileData td = map.Tiles;
             TileData td2 = new TileData(td.Width, td.Height);
 
+            // NumberOfBlendTiles is always one more than the number of entries in the list.
+            td2.NumberOfBlendTiles = 1;
+
             foreach (var tex in td.Textures)
             {
                 td2.AddTexture(tex);
             }
-
-            //td2.BlendTiles = td.BlendTiles;
-            foreach (var bt in td.BlendTiles.ToList())
-            {
-                BlendType type = bt.BlendType;
-                td2.GetBlendTileIndex(bt.TileIndex, type);
-            }
-
-            //td2.BlendTiles = td.BlendTiles;
 
             for (int i = 0; i < td.Width; i++)
             {
@@ -335,48 +306,34 @@ namespace MapTools.Commands
                 {
                     bool flip = false;
                     int x = i, y = j;
-                    if ((vertical && j > td.Height / 2) || (!vertical && i > td.Width / 2))
+                    if ((vertical && j >= td.Height / 2) || (!vertical && i >= td.Width / 2))
                     {
                         x = td.Width - 1 - i;
                         y = td.Height - 1 - j;
                         flip = true;
                     }
 
+                    var source = td[x, y];
                     var tile = new Tile()
                     {
                         BaseTexture = td.GetTexture(x, y).GetTileIndex(i, j),
-                        //BaseTexture = td[x, y].BaseTexture,
-                        BlendTexture1 = td[x, y].BlendTexture1,
-                        BlendTexture2 = td[x, y].BlendTexture2,
-                        BlendTexture3 = td[x, y].BlendTexture3,
-                        Impassable = td[x, y].Impassable
+                        Impassable = source.Impassable
                     };
 
+                    // Cloning into the other half is a point reflection, so both axes flip.
+                    Func<BlendType, BlendType> rotate = flip
+                        ? (Func<BlendType, BlendType>)(t =>
+                            TileUtils.getBlendTypeMirrored(TileUtils.getBlendTypeMirrored(t, vertical), !vertical))
+                        : (t => t);
 
-                    if (flip)
+                    tile.BlendTexture1 = TileUtils.remapBlendTile(td, td2, source.BlendTexture1, x, y, i, j, rotate);
+                    if (tile.BlendTexture1 > 0)
                     {
-                        if (tile.BlendTexture1 > 0)
-                        {
-                            BlendTile bt = td.BlendTiles[tile.BlendTexture1 - 1];
-                            var tex = td2.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                            var tileIndex = tex.GetTileIndex(i, j);
-                            tile.BlendTexture1 = td2.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(TileUtils.getBlendTypeMirrored(bt.BlendType, vertical), !vertical));
-                            if (tile.BlendTexture2 > 0)
-                            {
-                                bt = td.BlendTiles[tile.BlendTexture2 - 1];
-                                tex = td2.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                                tileIndex = tex.GetTileIndex(i, j);
-                                tile.BlendTexture2 = td2.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(TileUtils.getBlendTypeMirrored(bt.BlendType, vertical), !vertical));
-                                if (tile.BlendTexture3 > 0)
-                                {
-                                    bt = td.BlendTiles[tile.BlendTexture3 - 1];
-                                    tex = td2.Textures.Find(t => t.GetTileIndex(x, y) == bt.TileIndex);
-                                    tileIndex = tex.GetTileIndex(i, j);
-                                    tile.BlendTexture3 = td2.GetBlendTileIndex(tileIndex, TileUtils.getBlendTypeMirrored(TileUtils.getBlendTypeMirrored(bt.BlendType, vertical), !vertical));
-                                }
-                            }
-                        }
+                        tile.BlendTexture2 = TileUtils.remapBlendTile(td, td2, source.BlendTexture2, x, y, i, j, rotate);
+                        if (tile.BlendTexture2 > 0)
+                            tile.BlendTexture3 = TileUtils.remapBlendTile(td, td2, source.BlendTexture3, x, y, i, j, rotate);
                     }
+
                     td2[i, j] = tile;
                 }
             }
@@ -429,7 +386,7 @@ namespace MapTools.Commands
             List<Area> newAreas = new List<Area>();
             foreach (var a in map.Areas.ToList())
             {
-                if (a.Name == "DefaultWater")
+                if (options.SkipDefaultWater && ObjectUtils.isDefaultWater(a))
                     continue;
 
                 if ((vertical && !a.Points.Exists(p => (float)p[1] < centerY)) ||

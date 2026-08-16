@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Clone.cs" />
+    <Compile Include="Commands\CloneQuarter.cs" />
     <Compile Include="Commands\GenerateWak.cs" />
     <Compile Include="Commands\Mirror.cs" />
     <Compile Include="Commands\Replace.cs" />

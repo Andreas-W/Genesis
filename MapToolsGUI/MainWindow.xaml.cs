@@ -40,12 +40,15 @@ namespace MapToolsGUI
             {
                 lbl_map.Content = filename;
                 txt_border.Text = MapTools.MapTools.map.HeightMap.Border.ToString();
+                // Default to saving in the same container the map was loaded from.
+                cb_compress.IsChecked =
+                    MapTools.MapTools.compression != CkMp.Data.Compression.MapCompressionType.None;
             }
         }
 
         private void SaveMap_Click(object sender, RoutedEventArgs e)
         {
-            MapTools.MapTools.saveMap();
+            MapTools.MapTools.saveMap(cb_compress.IsChecked == true);
         }
 
         private void ImportHeightmap_Click(object sender, RoutedEventArgs e)
@@ -119,6 +122,21 @@ namespace MapToolsGUI
             MapTools.Commands.Clone.cloneAndRotate(MapTools.MapTools.map, true, this.CloneOptions);
         }
 
+        private void CloneQuarter_Click(object sender, RoutedEventArgs e)
+        {
+            if (MapTools.MapTools.map == null)
+                return;
+
+            if (!MapTools.Commands.CloneQuarter.canCloneQuarter(MapTools.MapTools.map))
+            {
+                MessageBox.Show(MapTools.Commands.CloneQuarter.NotSquareMessage, "Clone Quarter",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MapTools.Commands.CloneQuarter.cloneQuarter(MapTools.MapTools.map, this.CloneOptions);
+        }
+
         private void MapMerge_Click(object sender, RoutedEventArgs e)
         {
             MapMergeWindow window = new MapMergeWindow();
@@ -137,21 +155,7 @@ namespace MapToolsGUI
                 MapTools.MapTools.removeBlendTiles();
         }
 
-        private void CloneOptions_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.pu_cloneOptions.IsOpen)
-            {
-                this.CloneOptions.CloneAreas = cb_clone_areas.IsChecked.Value;
-                this.CloneOptions.CloneHeightmap = cb_clone_heightmap.IsChecked.Value;
-                this.CloneOptions.CloneObjects = cb_clone_objects.IsChecked.Value;
-                this.CloneOptions.CloneTerrain = cb_clone_terrain.IsChecked.Value;
-                this.CloneOptions.CloneBlendTiles = cb_clone_blendTiles.IsChecked.Value;
-                this.CloneOptions.CloneWaypoints = cb_clone_waypoints.IsChecked.Value;
-            }
-            this.pu_cloneOptions.IsOpen = !this.pu_cloneOptions.IsOpen;
-        }
-
-        private void btn_clone_close_Click(object sender, RoutedEventArgs e)
+        private void applyCloneOptions()
         {
             this.CloneOptions.CloneAreas = cb_clone_areas.IsChecked.Value;
             this.CloneOptions.CloneHeightmap = cb_clone_heightmap.IsChecked.Value;
@@ -159,18 +163,27 @@ namespace MapToolsGUI
             this.CloneOptions.CloneTerrain = cb_clone_terrain.IsChecked.Value;
             this.CloneOptions.CloneBlendTiles = cb_clone_blendTiles.IsChecked.Value;
             this.CloneOptions.CloneWaypoints = cb_clone_waypoints.IsChecked.Value;
+            this.CloneOptions.SkipDefaultWater = cb_clone_skipDefaultWater.IsChecked.Value;
+        }
+
+        private void CloneOptions_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.pu_cloneOptions.IsOpen)
+                applyCloneOptions();
+
+            this.pu_cloneOptions.IsOpen = !this.pu_cloneOptions.IsOpen;
+        }
+
+        private void btn_clone_close_Click(object sender, RoutedEventArgs e)
+        {
+            applyCloneOptions();
             this.pu_cloneOptions.IsOpen = false;
         }
 
         private void cb_cloneOptions_Checked(object sender, RoutedEventArgs e)
         {
             if (!this.IsInitialized) return;
-            this.CloneOptions.CloneAreas = cb_clone_areas.IsChecked.Value;
-            this.CloneOptions.CloneHeightmap = cb_clone_heightmap.IsChecked.Value;
-            this.CloneOptions.CloneObjects = cb_clone_objects.IsChecked.Value;
-            this.CloneOptions.CloneTerrain = cb_clone_terrain.IsChecked.Value;
-            this.CloneOptions.CloneBlendTiles = cb_clone_blendTiles.IsChecked.Value;
-            this.CloneOptions.CloneWaypoints = cb_clone_waypoints.IsChecked.Value;
+            applyCloneOptions();
         }
 
         private void btn_resize_apply_Click(object sender, RoutedEventArgs e)

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe -nologo -optimize+ -out:RefpackTest.exe RefpackTest.cs \"d:/Downloads/Generals/Genesis/CkMp.Data/Compression/Refpack.cs\" \"d:/Downloads/Generals/Genesis/CkMp.Data/Compression/MapCompression.cs\")",
+      "PowerShell(& \"C:\\\\Users\\\\andre\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Downloads-Generals-Genesis\\\\f3ce003d-9ac0-4fd1-b7d8-b9026f572aa5\\\\scratchpad\\\\RefpackTest.exe\")"
+    ]
+  }
+}
