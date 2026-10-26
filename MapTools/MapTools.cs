@@ -36,6 +36,16 @@ namespace MapTools
         public static string mapName = "";
 
         /// <summary>
+        /// Full path of the currently loaded map file, null if the map was not loaded from a file.
+        /// </summary>
+        public static string mapPath = null;
+
+        /// <summary>
+        /// HeightMapScale from the map.ini next to the loaded map (1 if there is none).
+        /// </summary>
+        public static float heightMapScale = 1f;
+
+        /// <summary>
         /// Compression of the currently loaded map, also used as the default when saving.
         /// </summary>
         public static MapCompressionType compression = MapCompressionType.None;
@@ -241,6 +251,8 @@ namespace MapTools
             }
             MapTools.map = map;
             MapTools.mapName = Path.GetFileName(filename);
+            MapTools.mapPath = null;
+            MapTools.heightMapScale = 1f;
         }
 
         public static void importHeightmap()
@@ -315,6 +327,8 @@ namespace MapTools
                 // Remember how the file was stored so it can be saved the same way again.
                 MapTools.compression = reader.Compression;
                 mapName = Path.GetFileName(filename);
+                mapPath = filename;
+                heightMapScale = MapIniUtils.readHeightMapScale(filename);
                 return mapName;
             }
             return "loading failed";
@@ -343,6 +357,28 @@ namespace MapTools
             {
                 bitmap.Save(saveFileDialog1.FileName);
             }
+        }
+
+        /// <summary>
+        /// Generates shore waves from the heightmap and saves them as .wak file (defaults to next to the map).
+        /// </summary>
+        /// <returns>number of written water tracks, -1 if cancelled</returns>
+        public static int generateWak(Options.WakOptions options)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.Filter = "wak files (*.wak)|*.wak|All files (*.*)|*.*";
+            saveFileDialog1.RestoreDirectory = true;
+            if (!String.IsNullOrEmpty(mapPath))
+            {
+                saveFileDialog1.InitialDirectory = Path.GetDirectoryName(mapPath);
+                saveFileDialog1.FileName = Path.GetFileNameWithoutExtension(mapPath) + ".wak";
+            }
+
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                return Commands.GenerateWak.generateWakFile(map, saveFileDialog1.FileName, options);
+            }
+            return -1;
         }
 
         public static void setBorder(int border)

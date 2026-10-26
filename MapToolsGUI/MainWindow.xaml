@@ -108,6 +108,62 @@
                         </StackPanel>
                     </Popup>
                     <Button Grid.Row="6" Grid.Column="0"  Click="MapMerge_Click" Content="Map merge..." FontWeight="Bold" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+                    <Button Name="btn_generateWak" Grid.Row="6" Grid.Column="1" Click="GenerateWak_Click" Content="Generate WAK..." Grid.ColumnSpan="2" Margin="146,0,0,0" Grid.RowSpan="2"
+                            ToolTip="Generate shore waves (.wak) from the heightmap."/>
+                    <Popup Grid.Row="6" Grid.Column="1" Name="pu_wakOptions" IsOpen="False" PlacementTarget="{Binding ElementName = btn_generateWak}" Placement="Right" Grid.ColumnSpan="2" Margin="146,0,0,0" Grid.RowSpan="2">
+                        <StackPanel Orientation="Vertical" Background="White">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Water Level:" Width="100"/>
+                                <TextBox Name="txt_wak_waterLevel" TextWrapping="Wrap" Text="80" Width="40"/>
+                                <ComboBox Name="cmb_wak_heightUnit" SelectedIndex="0" Width="130" Margin="4,0,0,0"
+                                          SelectionChanged="cmb_wak_heightUnit_SelectionChanged"
+                                          ToolTip="Unit of the water level. WorldBuilder height = heightmap value × height scale, 1 WorldBuilder height = 0.625 ft.">
+                                    <ComboBoxItem>Heightmap value</ComboBoxItem>
+                                    <ComboBoxItem>WorldBuilder height</ComboBoxItem>
+                                    <ComboBoxItem>Game units (ft)</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Height Scale:" Width="100"
+                                       ToolTip="HeightMapScale from the map.ini next to the map (read when the map is loaded)."/>
+                                <TextBox Name="txt_wak_heightScale" TextWrapping="Wrap" Text="1" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Max Gradient:" Width="100" ToolTip="No waves on shores steeper than this."/>
+                                <TextBox Name="txt_wak_gradient" TextWrapping="Wrap" Text="15" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Wave Distance:" Width="100" ToolTip="Spacing between waves along the shore (world units)."/>
+                                <TextBox Name="txt_wak_waveDistance" TextWrapping="Wrap" Text="45" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Inwards Shift:" Width="100" ToolTip="Moves waves towards the land (world units)."/>
+                                <TextBox Name="txt_wak_inwardsShift" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Shore Smoothing:" Width="100"
+                                       ToolTip="Smooths the shore line before placing waves (world units, 0 = off). Waves then face the smoothed shore."/>
+                                <TextBox Name="txt_wak_smoothing" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Min Water Width:" Width="100"
+                                       ToolTip="No waves on water narrower than this (world units, 0 = off), e.g. rivers and channels."/>
+                                <TextBox Name="txt_wak_minWaterWidth" TextWrapping="Wrap" Text="0" Width="40"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Wave Type:" Width="100"/>
+                                <ComboBox Name="cmb_wak_waveType" SelectedIndex="3" Width="130">
+                                    <ComboBoxItem>Pond</ComboBoxItem>
+                                    <ComboBoxItem>Ocean</ComboBoxItem>
+                                    <ComboBoxItem>Close Ocean</ComboBoxItem>
+                                    <ComboBoxItem>Close Ocean Double</ComboBoxItem>
+                                    <ComboBoxItem>Radial</ComboBoxItem>
+                                </ComboBox>
+                            </StackPanel>
+                            <Button Content="generate" Click="btn_wak_generate_Click" FontWeight="Bold"/>
+                            <Button Content="close" Click="btn_wak_close_Click"/>
+                        </StackPanel>
+                    </Popup>
                 </Grid>
             </GroupBox>
             <GroupBox Header="CCUN'T" Grid.Row="9">

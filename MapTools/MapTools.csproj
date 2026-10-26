@@ -11,6 +11,8 @@
     <RootNamespace>MapTools</RootNamespace>
     <AssemblyName>MapTools</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <!-- OpenCvSharp only ships a 64-bit native runtime (dll\x64\OpenCvSharpExtern.dll) -->
+    <Prefer32Bit>false</Prefer32Bit>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -83,6 +85,7 @@
     <Compile Include="Options\CommandOptions.cs" />
     <Compile Include="Prompt.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\MapIniUtils.cs" />
     <Compile Include="Utils\ObjectUtils.cs" />
     <Compile Include="Utils\TileUtils.cs" />
   </ItemGroup>

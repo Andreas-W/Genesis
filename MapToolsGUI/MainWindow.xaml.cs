@@ -40,6 +40,7 @@ namespace MapToolsGUI
             {
                 lbl_map.Content = filename;
                 txt_border.Text = MapTools.MapTools.map.HeightMap.Border.ToString();
+                txt_wak_heightScale.Text = formatFloat(MapTools.MapTools.heightMapScale);
                 // Default to saving in the same container the map was loaded from.
                 cb_compress.IsChecked =
                     MapTools.MapTools.compression != CkMp.Data.Compression.MapCompressionType.None;
@@ -217,6 +218,104 @@ namespace MapToolsGUI
         private void btn_resize_close_Click(object sender, RoutedEventArgs e)
         {
             this.pu_resizeOptions.IsOpen = false;
+        }
+
+        private void GenerateWak_Click(object sender, RoutedEventArgs e)
+        {
+            // Default to the water level used for texture generation (heightmap value), if one is set.
+            float waterLevel;
+            if (!this.pu_wakOptions.IsOpen && tryParseFloat(txt_waterLevel.Text, out waterLevel))
+                txt_wak_waterLevel.Text = formatFloat(fromRawHeight(waterLevel, wakHeightUnit, wakHeightMapScale()));
+
+            this.pu_wakOptions.IsOpen = !this.pu_wakOptions.IsOpen;
+        }
+
+        private void btn_wak_generate_Click(object sender, RoutedEventArgs e)
+        {
+            if (MapTools.MapTools.map == null)
+                return;
+
+            var options = new MapTools.Options.WakOptions();
+            options.HeightMapScale = wakHeightMapScale();
+            float value;
+            if (tryParseFloat(txt_wak_waterLevel.Text, out value))
+                options.WaterHeight = toRawHeight(value, wakHeightUnit, options.HeightMapScale);
+            if (tryParseFloat(txt_wak_gradient.Text, out value)) options.GradientThreshold = value;
+            if (tryParseFloat(txt_wak_waveDistance.Text, out value) && value > 0) options.WaveDistance = value;
+            if (tryParseFloat(txt_wak_inwardsShift.Text, out value)) options.InwardsShift = value;
+            if (tryParseFloat(txt_wak_smoothing.Text, out value) && value > 0) options.ShoreSmoothing = value;
+            if (tryParseFloat(txt_wak_minWaterWidth.Text, out value) && value > 0) options.MinWaterWidth = value;
+            options.WaveType = cmb_wak_waveType.SelectedIndex;
+
+            int count = MapTools.MapTools.generateWak(options);
+            if (count >= 0)
+            {
+                this.pu_wakOptions.IsOpen = false;
+                MessageBox.Show(String.Format("Wrote {0} water tracks.", count), "Generate WAK",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btn_wak_close_Click(object sender, RoutedEventArgs e)
+        {
+            this.pu_wakOptions.IsOpen = false;
+        }
+
+        // Units of txt_wak_waterLevel, in the order of cmb_wak_heightUnit.
+        const int HeightUnitRaw = 0;        // heightmap value as stored in the map file
+        const int HeightUnitWorldBuilder = 1; // raw value * HeightMapScale, as shown in WorldBuilder
+        const int HeightUnitFeet = 2;       // game units (ft): WorldBuilder height * MAP_HEIGHT_SCALE
+
+        private int wakHeightUnit = HeightUnitRaw;
+
+        private float wakHeightMapScale()
+        {
+            float scale;
+            return tryParseFloat(txt_wak_heightScale.Text, out scale) && scale > 0 ? scale : 1f;
+        }
+
+        private static float toRawHeight(float value, int unit, float heightMapScale)
+        {
+            if (unit == HeightUnitWorldBuilder) return value / heightMapScale;
+            if (unit == HeightUnitFeet) return value / (heightMapScale * MapTools.Commands.GenerateWak.MapHeightScale);
+            return value;
+        }
+
+        private static float fromRawHeight(float value, int unit, float heightMapScale)
+        {
+            if (unit == HeightUnitWorldBuilder) return value * heightMapScale;
+            if (unit == HeightUnitFeet) return value * heightMapScale * MapTools.Commands.GenerateWak.MapHeightScale;
+            return value;
+        }
+
+        private void cmb_wak_heightUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!this.IsInitialized) return;
+
+            int unit = cmb_wak_heightUnit.SelectedIndex;
+            if (unit < 0 || unit == wakHeightUnit) return;
+
+            // Convert the entered value so it keeps describing the same height.
+            float value;
+            if (tryParseFloat(txt_wak_waterLevel.Text, out value))
+            {
+                float scale = wakHeightMapScale();
+                txt_wak_waterLevel.Text = formatFloat(fromRawHeight(toRawHeight(value, wakHeightUnit, scale), unit, scale));
+            }
+
+            wakHeightUnit = unit;
+        }
+
+        private static string formatFloat(float value)
+        {
+            return value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        // Accepts both "7.5" and "7,5" regardless of the system locale.
+        private static bool tryParseFloat(string text, out float value)
+        {
+            return Single.TryParse(text.Replace(',', '.'), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out value);
         }
 
         private void btn_replace_all_Click(object sender, RoutedEventArgs e)
