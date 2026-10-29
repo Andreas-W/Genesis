@@ -110,6 +110,7 @@ namespace MapTools.Commands
         {
             // NumberOfBlendTiles is always one more than the number of entries in the list.
             td2.NumberOfBlendTiles = 1;
+            td2.CliffInfos = td.CliffInfos;
 
             Func<BlendType, BlendType> mirror = t => TileUtils.getBlendTypeMirrored(t, vertical);
 

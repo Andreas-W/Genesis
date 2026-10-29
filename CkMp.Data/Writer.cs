@@ -215,11 +215,11 @@ namespace CkMp.Data
 			writer.Write(Map.Tiles.NumberOfBaseTiles);
 			writer.Write(Map.Tiles.NumberOfBlendTiles);
 			
-			int magic = 1;
-			writer.Write(magic);
+			writer.Write(Map.Tiles.CliffInfos.Count + 1);
 
 			WriteTextures();
 			WriteBlendTiles();
+			WriteCliffInfos();
 		}
 
 		private void WriteImpassability()
@@ -275,6 +275,24 @@ namespace CkMp.Data
 				writer.Write(blendTile.TileIndex);
 				writer.Write((long)blendTile.BlendType);
 				writer.Write(BlendTile.BlendData);
+			}
+		}
+
+		private void WriteCliffInfos()
+		{
+			foreach (var cliff in Map.Tiles.CliffInfos)
+			{
+				writer.Write(cliff.TileIndex);
+				writer.Write(cliff.U0);
+				writer.Write(cliff.V0);
+				writer.Write(cliff.U1);
+				writer.Write(cliff.V1);
+				writer.Write(cliff.U2);
+				writer.Write(cliff.V2);
+				writer.Write(cliff.U3);
+				writer.Write(cliff.V3);
+				writer.Write((byte)(cliff.Flip ? 1 : 0));
+				writer.Write((byte)(cliff.Mutant ? 1 : 0));
 			}
 		}
 

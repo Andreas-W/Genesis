@@ -42,6 +42,7 @@ namespace MapTools.Commands
             map.Tiles = new TileData(width, height);
             map.Tiles.BlendTiles = tdOld.BlendTiles;
             map.Tiles.NumberOfBlendTiles = tdOld.NumberOfBlendTiles;
+            map.Tiles.CliffInfos = tdOld.CliffInfos;
 
             cropMap = new Grid<bool>(width, height);
 

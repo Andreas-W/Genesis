@@ -34,6 +34,11 @@ namespace CkMp.Data.Map
         public List<BlendTile> BlendTiles { get; set; }
 
         /// <summary>
+        /// Cliff texture coordinates, indexed from 1 by the per tile cliff index (index 0 means "no cliff").
+        /// </summary>
+        public List<CliffInfo> CliffInfos { get; set; }
+
+        /// <summary>
         /// Stores all indices in the BlendTiles collection for a given tile index.
         /// </summary>
         private IDictionary<short, IList<int>> tileBlendTypes;
@@ -51,6 +56,7 @@ namespace CkMp.Data.Map
 
             this.Textures = new List<Texture>();
             this.BlendTiles = new List<BlendTile>();
+            this.CliffInfos = new List<CliffInfo>();
             this.tileBlendTypes = new Dictionary<short, IList<int>>();
         }
 
@@ -65,6 +71,7 @@ namespace CkMp.Data.Map
                  + 4
                  + this.Textures.Sum(t => t.GetSize())
                  + this.BlendTiles.Sum(b => b.GetSize())
+                 + this.CliffInfos.Count * CliffInfo.Size
                  + 8;
         }
 
