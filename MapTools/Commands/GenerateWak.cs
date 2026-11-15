@@ -183,7 +183,9 @@ namespace MapTools.Commands
                 // contour follows the interpolated water line instead of whole cells
                 Cv2.Resize(hmMat, hmScaled, new Size(w * (int)CellSize, h * (int)CellSize));
                 Cv2.Threshold(hmScaled, hmScaled, options.WaterHeight, 255, ThresholdTypes.Binary);
-                Cv2.FindContours(hmScaled, out contours, out HierarchyIndex[] _, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+                // All contours, not just the outer ones: the shore of a lake is a hole in the land.
+                // Contours along the map edge are dropped below, they are outside the cell range.
+                Cv2.FindContours(hmScaled, out contours, out HierarchyIndex[] _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
             }
 
             byte[] wideWater = BuildWideWaterMask(heights, w, h, options);
