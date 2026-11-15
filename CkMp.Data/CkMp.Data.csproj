@@ -85,6 +85,7 @@
     <Compile Include="Lighting\Vector.cs" />
     <Compile Include="Map\BlendTile.cs" />
     <Compile Include="Map\BlendType.cs" />
+    <Compile Include="Map\CliffInfo.cs" />
     <Compile Include="Map\Grid.cs" />
     <Compile Include="Map\HeightMap.cs" />
     <Compile Include="Map\Map.cs" />

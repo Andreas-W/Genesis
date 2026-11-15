@@ -255,11 +255,36 @@ namespace CkMp.Data
             Map.Tiles.NumberOfBaseTiles = reader.ReadInt32();
             Map.Tiles.NumberOfBlendTiles = reader.ReadInt32();
             
-            int magic = reader.ReadInt32();
-            Assert(magic == 1);
+            // Like NumberOfBlendTiles this is one more than the number of stored entries.
+            int numberOfCliffInfos = reader.ReadInt32();
+            Assert(numberOfCliffInfos >= 1);
 
             ReadTextures();
             ReadBlendTiles();
+            ReadCliffInfos(numberOfCliffInfos);
+        }
+
+        private void ReadCliffInfos(int numberOfCliffInfos)
+        {
+            Map.Tiles.CliffInfos = new List<CliffInfo>(Math.Max(numberOfCliffInfos - 1, 0));
+
+            for (int i = 1; i < numberOfCliffInfos; i++)
+            {
+                Map.Tiles.CliffInfos.Add(new CliffInfo()
+                {
+                    TileIndex = reader.ReadInt32(),
+                    U0 = reader.ReadSingle(),
+                    V0 = reader.ReadSingle(),
+                    U1 = reader.ReadSingle(),
+                    V1 = reader.ReadSingle(),
+                    U2 = reader.ReadSingle(),
+                    V2 = reader.ReadSingle(),
+                    U3 = reader.ReadSingle(),
+                    V3 = reader.ReadSingle(),
+                    Flip = reader.ReadByte(),
+                    Mutant = reader.ReadByte()
+                });
+            }
         }
 
         private void ReadImpassability()
